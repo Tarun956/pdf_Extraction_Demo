@@ -17,7 +17,7 @@ from spacy.lang.en.stop_words import STOP_WORDS
 from string import punctuation
 from heapq import nlargest
 import random
-
+import PyPDF2
 
 app = FastAPI()
 origins = ["*"]
@@ -112,7 +112,8 @@ def get_stats_of_file(curr_file_path):
     result["Font_color_majority"] = "Black" if total_words != 0 else 'NA'
     result["total_pdf_text"] = final_total_pdf_text
     
-    table_count = get_table_count(curr_file_path)
+    # table_count = get_table_count(curr_file_path)
+    table_count = count_tables_in_pdf(curr_file_path)
     result["total_tables"] = str(table_count)
 
     pdf_metadata = get_pdf_metadata(curr_file_path)
@@ -149,10 +150,59 @@ def get_table_count(pdf_path):
     """
     try:
         # Read the PDF file and extract all of the tables using tabula
+        print("india")
         tables = tabula.read_pdf(pdf_path, pages='all', multiple_tables=True)
+        print("tablesffffffffffff")
         return len(tables)
     except Exception as e:
+        print(e)
+
         return 0
+# def count_tables_in_pdf(pdf_path):
+#     tables_count = 0
+
+#     with open(pdf_path, 'rb') as pdf_file:
+#         pdf_reader = PyPDF2.PdfReader(pdf_file)
+
+#         for page_num in range(len(pdf_reader.pages)):
+#             page = pdf_reader.getPage(page_num)
+#             page_text = page.extractText()
+
+#             # Use regex to identify potential table-like structures
+#             # Modify the regex pattern based on the structure of tables in your PDF
+#             table_patterns = [
+#                 r'\b[A-Z][^\.\n]*[A-Z][^\.\n]*\b\s+[\d\.,\(\)-]+(?:\s+[\d\.,\(\)-]+)*\n',
+#                 # Add more patterns if tables have different structures
+#             ]
+
+#             for pattern in table_patterns:
+#                 matches = re.findall(pattern, page_text)
+#                 tables_count += len(matches)
+
+#     return tables_count
+
+def count_tables_in_pdf(pdf_path):
+    tables_count = 0
+
+    with open(pdf_path, 'rb') as pdf_file:
+        pdf_reader = PyPDF2.PdfReader(pdf_file)
+
+        for page_num in range(len(pdf_reader.pages)):
+            page = pdf_reader.pages[page_num]
+            page_text = page.extract_text()
+
+            # Use regex to identify potential table-like structures
+            # Modify the regex pattern based on the structure of tables in your PDF
+            table_patterns = [
+                r'\b[A-Z][^\.\n]*[A-Z][^\.\n]*\b\s+[\d\.,\(\)-]+(?:\s+[\d\.,\(\)-]+)*\n',
+                # Add more patterns if tables have different structures
+            ]
+
+            for pattern in table_patterns:
+                matches = re.findall(pattern, page_text)
+                tables_count += len(matches)
+
+    return tables_count
 
 def get_pdf_metadata(pdf_path):
     metadata = {}
