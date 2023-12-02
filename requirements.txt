@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+PyMuPDF
+langdetect
+pdf2image
+fitz
+PyPDF2
+summa
