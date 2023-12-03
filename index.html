@@ -500,11 +500,13 @@
                 }
             )
             .then((data) => {
-              console.log(data.data);
+              console.log(data);
               responseDiv.style.display = "block";
               uploadDiv.style.display = "none";
 
-              const responseData = JSON.parse(data.data);
+              const responseData = data.data;
+
+              console.log(responseData)
 
               totalWords.textContent = responseData.total_words;
               totalHeadings.textContent = responseData.total_headings;
